@@ -45,7 +45,6 @@ function createStream(user, key, table, headers, cb) {
     api_key: key,
     q: sql
   })}`;
-  console.log(ourURL);
   const opts = url.parse(ourURL);
   opts.method='post';
   opts.headers = {
@@ -71,9 +70,8 @@ function createStream(user, key, table, headers, cb) {
       }
     })
   });
-  console.log('headers2', headers);
   var input = new ToCSV(headers);
-  pump(input, csv({headers}).on('data', e=>console.log('d', e.toString())), zlib.createGzip(), res, e=> {
+  pump(input, csv({headers}), zlib.createGzip(), res, e=> {
     if (e) {
       return cb(e);
     }
