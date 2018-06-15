@@ -5,6 +5,7 @@ const csv = require('csv-write-stream');
 const pump = require('pump');
 const zlib = require('zlib');
 const wkt = require('terraformer-wkt-parser');
+const terraformer = require('terraformer');
 const stream = require('readable-stream')
 module.exports = createStream;
 const makeSQL = (headers, table) =>
@@ -20,6 +21,7 @@ class ToCSV extends stream.Transform {
   _transform(chunk, _, next) {
     let out = chunk.properties;
     out.the_geom = `SRID=4326;${wkt.convert(chunk.geometry)}`;
+    out.the_geom_webmercator = `SRID=3857;${wkt.convert(terraformer.toMercator(chunk.geometry))}`;
     this.push(out);
     next();
   }
@@ -30,12 +32,15 @@ function createStream(user, key, table, headers, cb) {
   if (typeof cb !== 'function') {
     cb = ()=>{}
   }
+  headers = headers.slice();
   if (!headers.includes('the_geom')) {
-    headers = headers.slice();
+
     headers.push('the_geom');
   }
+  if (!headers.includes('the_geom_webmercator')) {
+    headers.push('the_geom_webmercator');
+  }
   let sql = makeSQL(headers, table);
-  console.log('headers', headers);
   let ourURL = `https://${user}.carto.com/api/v2/sql/copyfrom?${qs.stringify({
     api_key: key,
     q: sql
