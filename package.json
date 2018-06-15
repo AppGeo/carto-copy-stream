@@ -14,5 +14,9 @@
     "readable-stream": "^2.3.6",
     "terraformer": "^1.0.9",
     "terraformer-wkt-parser": "^1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:AppGeo/carto-copy-stream.git"
   }
 }
