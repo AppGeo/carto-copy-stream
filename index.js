@@ -20,8 +20,10 @@ class ToCSV extends stream.Transform {
   }
   _transform(chunk, _, next) {
     let out = chunk.properties;
-    out.the_geom = `SRID=4326;${wkt.convert(chunk.geometry)}`;
-    out.the_geom_webmercator = `SRID=3857;${wkt.convert(terraformer.toMercator(chunk.geometry))}`;
+    if (chunk.geometry) {
+      out.the_geom = `SRID=4326;${wkt.convert(chunk.geometry)}`;
+      out.the_geom_webmercator = `SRID=3857;${wkt.convert(terraformer.toMercator(chunk.geometry))}`;
+    }
     this.push(out);
     next();
   }
@@ -32,9 +34,15 @@ function createStream(user, key, table, headers, cb) {
   if (typeof cb !== 'function') {
     cb = ()=>{}
   }
+  if (!Array.isArray(headers)) {
+    return cb(new TypeError('headers must be an array'))
+  }
+  if (headers.length === 0){
+    return cb(new TypeError('headers array must have stuff in it'))
+  }
+
   headers = headers.slice();
   if (!headers.includes('the_geom')) {
-
     headers.push('the_geom');
   }
   if (!headers.includes('the_geom_webmercator')) {
