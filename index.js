@@ -79,7 +79,9 @@ function createStream(user, key, table, headers, cb) {
     })
   });
   var input = new ToCSV(headers);
-  pump(input, csv({headers}), zlib.createGzip(), res, e=> {
+  pump(input, csv({headers}), zlib.createGzip({
+    level: 2
+  }), res, e=> {
     if (e) {
       return cb(e);
     }
