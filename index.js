@@ -29,8 +29,28 @@ class ToCSV extends stream.Transform {
   }
 }
 
-
-function createStream(user, key, table, headers, cb) {
+function createBaseUrl(user, credentials) {
+  if (!credentials.domain && !credentials.subdomainless) {
+    return `https://${user}.carto.com`;
+  }
+  if (credentials.domain) {
+    if (credentials.subdomainless) {
+      return `https://${credentials.domain}/user/${user}`;
+    } else {
+      return `https://${user}.${credentials.domain}`;
+    }
+  } else if (credentials.subdomainless) {
+    return `https://carto.com/user/${user}`;
+  }
+}
+function createStream(user, key, table, headers, cartoOpts, cb) {
+  if (typeof cartoOpts === 'function') {
+    cb = cartoOpts;
+    cartoOpts = {};
+  }
+  if (!cartoOpts) {
+    cartoOpts = {};
+  }
   if (typeof cb !== 'function') {
     cb = ()=>{}
   }
@@ -49,7 +69,7 @@ function createStream(user, key, table, headers, cb) {
     headers.push('the_geom_webmercator');
   }
   let sql = makeSQL(headers, table);
-  let ourURL = `https://${user}.carto.com/api/v2/sql/copyfrom?${qs.stringify({
+  let ourURL = `${createBaseUrl(user, cartoOpts)}/api/v2/sql/copyfrom?${qs.stringify({
     api_key: key,
     q: sql
   })}`;
