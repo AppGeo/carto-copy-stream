@@ -11,7 +11,7 @@
   "dependencies": {
     "csv-write-stream": "^2.0.0",
     "pump": "^3.0.0",
-    "readable-stream": "^2.3.6",
+    "readable-stream": "^4.2.0",
     "terraformer": "^1.0.9",
     "terraformer-wkt-parser": "^1.2.0"
   },
