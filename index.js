@@ -2,14 +2,13 @@ const qs = require('querystring');
 const url = require('url');
 const https = require('https');
 const csv = require('csv-write-stream');
-const pump = require('pump');
 const zlib = require('zlib');
 const wkt = require('terraformer-wkt-parser');
 const terraformer = require('terraformer');
 const stream = require('readable-stream')
 module.exports = createStream;
 const makeSQL = (headers, table) =>
-`COPY ${table} (${headers.join(',')}) FROM STDIN WITH (FORMAT csv, HEADER true)`
+  `COPY ${table} (${headers.join(',')}) FROM STDIN WITH (FORMAT csv, HEADER true)`
 
 class ToCSV extends stream.Transform {
   constructor(headers) {
@@ -99,7 +98,7 @@ function createStream(user, key, table, headers, cartoOpts, cb) {
     })
   });
   var input = new ToCSV(headers);
-  pump(input, csv({headers}), zlib.createGzip({
+  stream.pipeline(input, csv({headers}), zlib.createGzip({
     level: 2
   }), res, e=> {
     if (e) {
